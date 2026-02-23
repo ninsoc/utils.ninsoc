@@ -1,0 +1,9 @@
+.Rproj
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+man/
+dev/
+inst/
