@@ -4,3 +4,5 @@
 ^README\.Rmd$
 ^dev$
 ^air\.toml$
+^\.positai$
+^\.claude$
