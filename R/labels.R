@@ -18,7 +18,6 @@
 #' @param na String to be interpreted as missing values.
 #' @return Factor variable.
 #'
-#' @importFrom assertthat is.string
 #' @export
 #'
 #' @examples
