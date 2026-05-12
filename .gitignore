@@ -1,3 +1,4 @@
+.positai
 .Rproj
 .Rproj.user
 .Rhistory
@@ -5,10 +6,5 @@
 .httr-oauth
 .DS_Store
 man/
-# dev/
+dev/
 inst/
-.positai
-.Rproj.user
-.positai
-.Rproj.user
-.positai

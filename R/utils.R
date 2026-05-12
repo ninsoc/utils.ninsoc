@@ -16,7 +16,6 @@
 #' Additional attributes include:
 #' - `"num_rows"`: Number of rows in `x`
 #'
-#' @importFrom utils head
 #' @export
 #'
 #' @examples
@@ -34,13 +33,13 @@ df_variables = function(x) {
     stop("Argument 'x' must be a data.frame.")
   }
 
-  map = lapply(as.data.frame(head(x, 0)), class)
+  class_map = lapply(as.data.frame(utils::head(x, 0)), class)
 
   vars_class = list()
-  for (iter in 1:length(map)) {
-    item = map[[iter]]
+  for (iter in seq_along(class_map)) {
+    item = class_map[[iter]]
     last_item = item[length(item)] # Em alguns casos a variável tem mais de uma classe
-    nome_item = names(map)[iter]
+    nome_item = names(class_map)[iter]
 
     vars_class[[nome_item]] = last_item
   }
@@ -79,11 +78,6 @@ df_variables = function(x) {
 #'   \item{type}{Column type (`integer`, `double`, `Date`, `character`, `logical`, `factor`, `datetime`)}
 #' }
 #'
-#' @import assertthat
-#' @import dplyr
-#' @importFrom fst metadata_fst
-#' @importFrom utils capture.output
-#' @importFrom stringr str_match
 #' @export
 #'
 #' @examples
@@ -140,13 +134,6 @@ fst_variables = function(file) {
 #'   \item{pq_type}{Parquet column type}
 #' }
 #'
-#' @import assertthat
-#' @import dplyr
-#' @importFrom arrow ParquetFileReader
-#' @importFrom stringr str_split
-#' @importFrom stringr str_split_fixed
-#' @importFrom stringr str_squish
-#' @importFrom stringr str_detect
 #' @export
 #'
 #' @examples
@@ -179,11 +166,11 @@ pq_variables = function(file) {
     stringr::str_split_fixed(":", 2)
 
   meta = tibble::tibble(var = vars_class[, 1], type = vars_class[, 2]) |>
-    dplyr::inner_join(tibble(var = pq_schema$names), by = "var") |>
+    dplyr::inner_join(tibble::tibble(var = pq_schema$names), by = "var") |>
     dplyr::mutate(type = stringr::str_squish(.data$type)) |>
     dplyr::mutate(pq_type = .data$type) |>
     dplyr::mutate(
-      type = case_when(
+      type = dplyr::case_when(
         .data$type == "bool" ~ "logical",
         .data$type == "int8" ~ "integer",
         .data$type == "int16" ~ "integer",
@@ -219,9 +206,6 @@ pq_variables = function(file) {
 #' @param x A \code{data.frame} object.
 #' @return Returns a compressed \code{data.frame}.
 #'
-#' @import dplyr
-#' @importFrom purrr map
-#' @importFrom utils type.convert
 #' @export
 #'
 #' @examples
@@ -261,20 +245,20 @@ compress_data = function(x) {
   var_names = vars_type |> dplyr::pull(.data$var)
 
   datetime_vars =
-    filter(
+    dplyr::filter(
       vars_type,
       .data$type %in% c("Date", "IDate", "POSIXt", "POSIXct")
     ) |>
     dplyr::pull(.data$var)
 
   non_datetime_vars =
-    filter(vars_type, !(.data$var %in% datetime_vars)) |>
+    dplyr::filter(vars_type, !(.data$var %in% datetime_vars)) |>
     dplyr::pull(.data$var)
 
   # Separa o data.frame em duas partes, Date e non-Date
 
-  df_datetime_vars = dplyr::select(x, all_of(datetime_vars))
-  df_non_datetime_vars = dplyr::select(x, all_of(non_datetime_vars))
+  df_datetime_vars = dplyr::select(x, dplyr::all_of(datetime_vars))
+  df_non_datetime_vars = dplyr::select(x, dplyr::all_of(non_datetime_vars))
 
   # Otimiza as variáveis
   # O maior número inteiro que pode ser armazenado como "numeric" sem perda de
@@ -301,7 +285,7 @@ compress_data = function(x) {
   )
 
   re = dplyr::bind_cols(df_datetime_vars, df_non_datetime_vars) |>
-    dplyr::select(all_of(var_names))
+    dplyr::select(dplyr::all_of(var_names))
 
   return(re)
 }
@@ -323,12 +307,6 @@ compress_data = function(x) {
 #' @return Returns an \code{Arrow Table} with columns converted to
 #' the most memory saving data type.
 #'
-#' @import dplyr
-#' @import arrow
-#' @importFrom stringr str_split
-#' @importFrom stringr str_split_fixed
-#' @importFrom stringr str_squish
-#' @importFrom stringr str_detect
 #' @importFrom bit64 as.integer64
 #' @export
 #'
@@ -400,11 +378,11 @@ compress_arrow = function(x, int64 = FALSE, exclude = NULL) {
     stringr::str_split_fixed(":", 2)
 
   meta = tibble::tibble(var = vars_class[, 1], type = vars_class[, 2]) |>
-    dplyr::inner_join(tibble(var = pq_schema$names), by = "var") |>
+    dplyr::inner_join(tibble::tibble(var = pq_schema$names), by = "var") |>
     dplyr::mutate(type = stringr::str_squish(.data$type)) |>
     dplyr::mutate(pq_type = .data$type) |>
     dplyr::mutate(
-      type = case_when(
+      type = dplyr::case_when(
         .data$type == "bool" ~ "logical",
         .data$type == "int8" ~ "integer",
         .data$type == "int16" ~ "integer",
@@ -547,8 +525,6 @@ compress_arrow = function(x, int64 = FALSE, exclude = NULL) {
 #'
 #' @return Returns the optimal number of rows for each chunk.
 #'
-#' @import assertthat
-#' @importFrom utils object.size
 #' @export
 #'
 #' @examples
@@ -593,10 +569,6 @@ optimal_chunk_size = function(x, chunk_size_bytes = 500 * (1024^2)) {
 }
 
 
-# FIXME: Arrumar a seguinte mensagem quando importa rlang em DESCRIPTION
-# Warning: replacing previous import 'assertthat::has_name' by 'rlang::has_name' when loading 'utils.ninsoc'
-# Warning: replacing previous import 'arrow::string' by 'rlang::string' when loading 'utils.ninsoc'
-
 #' Cast an Arrow Table variable to Another Data Type
 #'
 #' @description
@@ -610,9 +582,7 @@ optimal_chunk_size = function(x, chunk_size_bytes = 500 * (1024^2)) {
 #'
 #' @return An \code{Arrow Table}.
 #'
-#' @import assertthat
-#' @importFrom rlang quo
-#' @importFrom rlang as_name
+#' @importFrom rlang quo as_name
 #' @export
 #'
 #' @examples
@@ -623,8 +593,8 @@ optimal_chunk_size = function(x, chunk_size_bytes = 500 * (1024^2)) {
 #' @author Fabio M. Vaz
 cast_arrow_dtype = function(arrow_table, var_name, data_type) {
   # Usando non-standard evaluation
-  quo_var_name = rlang::quo({{ var_name }})
-  var_name = rlang::as_name(quo_var_name)
+  quo_var_name = quo({{ var_name }})
+  var_name = as_name(quo_var_name)
 
   if (!("ArrowTabular" %in% class(arrow_table))) {
     stop("Argument 'arrow_table' must be an Arrow Table.")

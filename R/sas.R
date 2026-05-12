@@ -25,9 +25,6 @@
 #'  \item{end}{Field ending position}
 #' }
 #'
-#' @import dplyr
-#' @importFrom assertthat is.string
-#' @importFrom readr read_lines locale guess_encoding
 #' @export
 #'
 #' @seealso \code{\link{sas_input_dict}}
@@ -419,9 +416,8 @@ parse_sas_input_code = function(
 #' @param ending.comment Comment ending string.
 #' @return Character vector with SAS code without comments.
 #'
-#' @importFrom assertthat is.string
-#'
-#' @author Anthony Joseph Damico
+#' @keywords internal
+#' @noRd
 uncomment_sas_code = function(SASinput, starting.comment, ending.comment) {
   if (!assertthat::is.string(starting.comment)) {
     stop("Argument 'starting.comment' must be a string.")
@@ -523,13 +519,6 @@ uncomment_sas_code = function(SASinput, starting.comment, ending.comment) {
 #' }
 #'
 #' @export
-#'
-#' @import dplyr
-#' @importFrom assertthat is.string
-#' @importFrom stringr regex
-#' @importFrom stringr str_match
-#' @importFrom readr read_lines locale guess_encoding
-#' @importFrom tools file_path_sans_ext
 #'
 #' @seealso \code{\link{parse_sas_input_code}}
 #'

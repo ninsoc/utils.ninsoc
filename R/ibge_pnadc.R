@@ -3,19 +3,21 @@
 #' @description
 #' `r lifecycle::badge('experimental')`
 #'
-#' You know what it does.
+#' Renames variables of a PNADC data frame to their original mixed-case names
+#' as defined in the IBGE input scripts (e.g. `V1028` → `V1028`, `uf` → `UF`,
+#' `ano` → `Ano`). Variables matching the PNADC naming pattern (`v`, `vd`, `vi`,
+#' `s`, `sd` followed by digits) are uppercased; a fixed set of non-pattern
+#' variables is renamed to their canonical forms.
 #'
 #' @param x A \code{data.frame}.
 #' @return Return the original \code{data.frame} with variable renamed acording PNADC input scripts.
 #'
 #' @export
 #'
-#' @import dplyr
 #' @importFrom rlang !! :=
-#' @importFrom stringr regex str_detect
 #'
 #' @author Fabio M. Vaz
-rename_to_pnadc_original_case = function(x) {
+pnadc_original_vars = function(x) {
   if (!("data.frame" %in% class(x))) {
     stop("Argument 'x' must be of a data.frame class or equivalent.")
   }
@@ -45,12 +47,12 @@ rename_to_pnadc_original_case = function(x) {
 
     if (stringr::str_detect(varname, regex_pnadc_vars)) {
       pnadc_varname = varname_upcase
-      x = rename(x, !!pnadc_varname := !!varname)
+      x = dplyr::rename(x, !!pnadc_varname := !!varname)
     } else if (varname_upcase %in% toupper(no_regex_pnadc_vars)) {
       pnadc_varname = no_regex_pnadc_vars[
         varname_upcase == toupper(no_regex_pnadc_vars)
       ]
-      x = rename(x, !!pnadc_varname := !!varname)
+      x = dplyr::rename(x, !!pnadc_varname := !!varname)
     }
   }
 
@@ -63,14 +65,12 @@ rename_to_pnadc_original_case = function(x) {
 #' @param data_pnadc A tibble of PNADC microdata read with \code{read_pnadc} function.
 #' @return An object of class \code{survey.design} or \code{svyrep.design} with the data from PNADC and its sample design.
 #'
-#' @importFrom survey svydesign postStratify svrepdesign calibrate
-#' @importFrom srvyr as_survey
 #' @export
 #'
 #' @author Fabio M. Vaz
 #' @note
 #' Essa função foi adaptada da função 'pnadc_design' do pacote "PNADcIBGE".
-srvyr_pnadc_design_lowcase <- function(data_pnadc) {
+pnadc_design_lowcase = function(data_pnadc) {
   if (!("tbl_df" %in% class(data_pnadc))) {
     stop(
       "The microdata object is not of the tibble class or sample design was already defined for microdata"
@@ -211,7 +211,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       if (all(sprintf("v1028%03d", seq(1:200)) %in% names(data_pnadc))) {
         # log_info("Usando pesos bootstrap")
 
-        data_posterior <- survey::svrepdesign(
+        data_posterior = survey::svrepdesign(
           data = data_pnadc,
           weight = ~v1028,
           type = "bootstrap",
@@ -223,26 +223,26 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       } else {
         # log_info("Usando calibragem")
 
-        data_prior <- survey::svydesign(
+        data_prior = survey::svydesign(
           ids = ~ upa + id_domicilio,
           strata = ~estrato,
           data = data_pnadc,
           weights = ~v1027,
           nest = TRUE
         )
-        popc.types <- data.frame(
+        popc.types = data.frame(
           posest = as.character(unique(data_pnadc$posest)),
           Freq = as.numeric(unique(data_pnadc$v1029))
         )
-        popc.types <- popc.types[order(popc.types$posest), ]
-        popi.types <- data.frame(
+        popc.types = popc.types[order(popc.types$posest), ]
+        popi.types = data.frame(
           posest_sxi = as.character(unique(data_pnadc$posest_sxi)),
           Freq = as.numeric(unique(data_pnadc$v1033))
         )
-        popi.types <- popi.types[order(popi.types$posest_sxi), ]
+        popi.types = popi.types[order(popi.types$posest_sxi), ]
         # pop.rake.calib <- c(sum(popc.types$Freq), popc.types$Freq[-1], popi.types$Freq[-1])
         # data_posterior <- survey::calibrate(design=data_prior, formula=~posest+posest_sxi, pop=pop.rake.calib, calfun="raking", aggregate.stage=2, bounds=c(0.2,5), multicore=TRUE)
-        data_posterior <- survey::calibrate(
+        data_posterior = survey::calibrate(
           design = data_prior,
           formula = list(~posest, ~posest_sxi),
           pop = list(popc.types, popi.types),
@@ -273,7 +273,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       if (all(sprintf("v1032%03d", seq(1:200)) %in% names(data_pnadc))) {
         # log_info("Usando pesos bootstrap")
 
-        data_posterior <- survey::svrepdesign(
+        data_posterior = survey::svrepdesign(
           data = data_pnadc,
           weight = ~v1032,
           type = "bootstrap",
@@ -285,26 +285,26 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       } else {
         # log_info("Usando calibragem")
 
-        data_prior <- survey::svydesign(
+        data_prior = survey::svydesign(
           ids = ~ upa + id_domicilio,
           strata = ~estrato,
           data = data_pnadc,
           weights = ~v1031,
           nest = TRUE
         )
-        popc.types <- data.frame(
+        popc.types = data.frame(
           posest = as.character(unique(data_pnadc$posest)),
           Freq = as.numeric(unique(data_pnadc$v1030))
         )
-        popc.types <- popc.types[order(popc.types$posest), ]
-        popi.types <- data.frame(
+        popc.types = popc.types[order(popc.types$posest), ]
+        popi.types = data.frame(
           posest_sxi = as.character(unique(data_pnadc$posest_sxi)),
           Freq = as.numeric(unique(data_pnadc$v1034))
         )
-        popi.types <- popi.types[order(popi.types$posest_sxi), ]
+        popi.types = popi.types[order(popi.types$posest_sxi), ]
         # pop.rake.calib <- c(sum(popc.types$Freq), popc.types$Freq[-1], popi.types$Freq[-1])
         # data_posterior <- survey::calibrate(design=data_prior, formula=~posest+posest_sxi, pop=pop.rake.calib, calfun="raking", aggregate.stage=2, bounds=c(0.2,5), multicore=TRUE)
-        data_posterior <- survey::calibrate(
+        data_posterior = survey::calibrate(
           design = data_prior,
           formula = list(~posest, ~posest_sxi),
           pop = list(popc.types, popi.types),
@@ -346,16 +346,16 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
         )
 
       # defining total for poststratification
-      popc.types <- data.frame(
+      popc.types = data.frame(
         posest = as.character(unique(data_pnadc$posest)),
         Freq = as.numeric(unique(data_pnadc$v1029))
       )
 
       # order data by post strata
-      popc.types <- (popc.types[order(popc.types$posest), ])
+      popc.types = (popc.types[order(popc.types$posest), ])
 
       # creating final desing object w/ poststratification
-      data_posterior <- survey::postStratify(
+      data_posterior = survey::postStratify(
         design = data_prior,
         strata = ~posest,
         population = popc.types
@@ -406,16 +406,16 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
         )
 
       # defining total for poststratification
-      popc.types <- data.frame(
+      popc.types = data.frame(
         posest = as.character(unique(data_pnadc$posest)),
         Freq = as.numeric(unique(data_pnadc$v1030))
       )
 
       # order data by post strata
-      popc.types <- (popc.types[order(popc.types$posest), ])
+      popc.types = (popc.types[order(popc.types$posest), ])
 
       # creating final desing object w/ poststratification
-      data_posterior <- survey::postStratify(
+      data_posterior = survey::postStratify(
         design = data_prior,
         strata = ~posest,
         population = popc.types
@@ -455,7 +455,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       if (all(sprintf("v1036%03d", seq(1:200)) %in% names(data_pnadc))) {
         # log_info("Usando pesos bootstrap")
 
-        data_posterior <- survey::svrepdesign(
+        data_posterior = survey::svrepdesign(
           data = data_pnadc,
           weight = ~v1036,
           type = "bootstrap",
@@ -467,26 +467,26 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       } else {
         # log_info("Usando calibragem")
 
-        data_prior <- survey::svydesign(
+        data_prior = survey::svydesign(
           ids = ~ upa + id_domicilio,
           strata = ~estrato,
           data = data_pnadc,
           weights = ~v1035,
           nest = TRUE
         )
-        popc.types <- data.frame(
+        popc.types = data.frame(
           posest = as.character(unique(data_pnadc$posest)),
           Freq = as.numeric(unique(data_pnadc$v1037))
         )
-        popc.types <- popc.types[order(popc.types$posest), ]
-        popi.types <- data.frame(
+        popc.types = popc.types[order(popc.types$posest), ]
+        popi.types = data.frame(
           posest_sxi = as.character(unique(data_pnadc$posest_sxi)),
           Freq = as.numeric(unique(data_pnadc$v1038))
         )
-        popi.types <- popi.types[order(popi.types$posest_sxi), ]
+        popi.types = popi.types[order(popi.types$posest_sxi), ]
         # pop.rake.calib <- c(sum(popc.types$Freq), popc.types$Freq[-1], popi.types$Freq[-1])
         # data_posterior <- survey::calibrate(design=data_prior, formula=~posest+posest_sxi, pop=pop.rake.calib, calfun="raking", aggregate.stage=2, bounds=c(0.2,5), multicore=TRUE)
-        data_posterior <- survey::calibrate(
+        data_posterior = survey::calibrate(
           design = data_prior,
           formula = list(~posest, ~posest_sxi),
           pop = list(popc.types, popi.types),
@@ -517,7 +517,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       if (all(sprintf("V1040%03d", seq(1:200)) %in% names(data_pnadc))) {
         # log_info("Usando pesos bootstrap")
 
-        data_posterior <- survey::svrepdesign(
+        data_posterior = survey::svrepdesign(
           data = data_pnadc,
           weight = ~v1040,
           type = "bootstrap",
@@ -529,26 +529,26 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
       } else {
         # log_info("Usando calibragem")
 
-        data_prior <- survey::svydesign(
+        data_prior = survey::svydesign(
           ids = ~ upa + id_domicilio,
           strata = ~estrato,
           data = data_pnadc,
           weights = ~v1039,
           nest = TRUE
         )
-        popc.types <- data.frame(
+        popc.types = data.frame(
           posest = as.character(unique(data_pnadc$posest)),
           Freq = as.numeric(unique(data_pnadc$v1041))
         )
-        popc.types <- popc.types[order(popc.types$posest), ]
-        popi.types <- data.frame(
+        popc.types = popc.types[order(popc.types$posest), ]
+        popi.types = data.frame(
           posest_sxi = as.character(unique(data_pnadc$posest_sxi)),
           Freq = as.numeric(unique(data_pnadc$v1042))
         )
-        popi.types <- popi.types[order(popi.types$posest_sxi), ]
+        popi.types = popi.types[order(popi.types$posest_sxi), ]
         # pop.rake.calib <- c(sum(popc.types$Freq), popc.types$Freq[-1], popi.types$Freq[-1])
         # data_posterior <- survey::calibrate(design=data_prior, formula=~posest+posest_sxi, pop=pop.rake.calib, calfun="raking", aggregate.stage=2, bounds=c(0.2,5), multicore=TRUE)
-        data_posterior <- survey::calibrate(
+        data_posterior = survey::calibrate(
           design = data_prior,
           formula = list(~posest, ~posest_sxi),
           pop = list(popc.types, popi.types),
@@ -574,19 +574,19 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
     ) {
       # log_info("PNADC módulos individuais trimestrais - pós-estratificação geográfica")
 
-      data_prior <- survey::svydesign(
+      data_prior = survey::svydesign(
         ids = ~upa,
         strata = ~estrato,
         data = data_pnadc,
         weights = ~v1035,
         nest = TRUE
       )
-      popc.types <- data.frame(
+      popc.types = data.frame(
         posest = as.character(unique(data_pnadc$posest)),
         Freq = as.numeric(unique(data_pnadc$v1037))
       )
-      popc.types <- popc.types[order(popc.types$posest), ]
-      data_posterior <- survey::postStratify(
+      popc.types = popc.types[order(popc.types$posest), ]
+      data_posterior = survey::postStratify(
         design = data_prior,
         strata = ~posest,
         population = popc.types
@@ -594,7 +594,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
     } else if (all(c("upa", "id_domicilio", "estrato", "v1036") %in% names(data_pnadc))) {
       # log_info("PNADC módulos individuais trimestrais - não pós-estratificado")
 
-      data_posterior <- survey::svydesign(
+      data_posterior = survey::svydesign(
         ids = ~upa,
         strata = ~estrato,
         data = data_pnadc,
@@ -617,19 +617,19 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
     ) {
       # log_info("PNADC módulos individuais anuais - pós-estratificação geográfica")
 
-      data_prior <- survey::svydesign(
+      data_prior = survey::svydesign(
         ids = ~upa,
         strata = ~estrato,
         data = data_pnadc,
         weights = ~v1039,
         nest = TRUE
       )
-      popc.types <- data.frame(
+      popc.types = data.frame(
         posest = as.character(unique(data_pnadc$posest)),
         Freq = as.numeric(unique(data_pnadc$v1041))
       )
-      popc.types <- popc.types[order(popc.types$posest), ]
-      data_posterior <- survey::postStratify(
+      popc.types = popc.types[order(popc.types$posest), ]
+      data_posterior = survey::postStratify(
         design = data_prior,
         strata = ~posest,
         population = popc.types
@@ -637,7 +637,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
     } else if (all(c("upa", "id_domicilio", "estrato", "v1040") %in% names(data_pnadc))) {
       # log_info("PNADC módulos individuais anuais - não pós-estratificado")
 
-      data_posterior <- survey::svydesign(
+      data_posterior = survey::svydesign(
         ids = ~upa,
         strata = ~estrato,
         data = data_pnadc,
@@ -647,7 +647,7 @@ srvyr_pnadc_design_lowcase <- function(data_pnadc) {
     }
   } else {
     message("Weight variables required for sample design are missing.")
-    data_posterior <- data_pnadc
+    data_posterior = data_pnadc
   }
 
   # log_info("Aplicando a função srvyr::as_survey() no object 'survey'")
