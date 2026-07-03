@@ -16,7 +16,6 @@ Roxygen: list(markdown = TRUE)
 Imports: 
     arrow,
     assertthat,
-    bit64,
     dplyr,
     fst,
     purrr,

@@ -6,3 +6,6 @@
 ^air\.toml$
 ^\.positai$
 ^\.claude$
+^\.git
+^check$
+^.*\.tar\.gz$

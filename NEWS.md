@@ -1,3 +1,14 @@
+# utils.ninsoc 0.0.0.9005
+
+* Rename function `rename_to_pnadc_original_case` to `pnadc_original_vars`.
+* Rename function `srvyr_pnadc_design_lowcase` to `pnadc_design_lowcase`.
+* Add `label_values` to package exports.
+* Remove functions `from_parquet_to_parquet`, `from_fst_to_parquet`, and `from_parquet_to_fst` (moved to `dev/.obsoleto/`).
+* Remove `tictoc` from package dependencies.
+* Remove unnecessary `bit64` import so the package installs in clean project libraries.
+* Make `uncomment_sas_code` an internal function (no longer exported).
+* Refactoring: replace broad `@import` directives with explicit `package::function()` calls throughout.
+
 # utils.ninsoc 0.0.0.9004
 
 * Rename functions: 'rename_to_pnadc_original_case' and 'srvyr_pnadc_design_lowcase'.

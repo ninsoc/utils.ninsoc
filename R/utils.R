@@ -307,7 +307,6 @@ compress_data = function(x) {
 #' @return Returns an \code{Arrow Table} with columns converted to
 #' the most memory saving data type.
 #'
-#' @importFrom bit64 as.integer64
 #' @export
 #'
 #' @examples
@@ -437,9 +436,6 @@ compress_arrow = function(x, int64 = FALSE, exclude = NULL) {
     # Como o número é maior que max integer, eu uso floor ao invés de converter para integer
     # floor(90071992547409.1) == 90071992547409.1
     # floor(922337203685477.1) == 922337203685477.1
-    # col_data = c(9007199254740991, 90071992547409.1)
-    # ind_integer = all(as.character(bit64::as.integer64(col_data)) == as.character(col_data))
-
     if (class(col_data[1]$as_vector()) %in% c("integer", "integer64")) {
       ind_integer = TRUE
     } else {

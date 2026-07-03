@@ -5,6 +5,8 @@
 .Rdata
 .httr-oauth
 .DS_Store
-man/
 dev/
-inst/
+.Rproj.user
+.positai
+.Rproj.user
+.positai

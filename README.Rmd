@@ -26,7 +26,7 @@ The goal of utils.ninsoc is to provide several utilities functions.
 You can install utils.ninsoc with:
 
 ``` r
-install.packages(r"(C:\Libraries\utils.ninsoc)", repos = NULL, type = "source")
+install.packages("utils.ninsoc", repos = NULL, type = "source")
 ```
 
 ## Example
@@ -45,3 +45,10 @@ utils.ninsoc::df_variables(mtcars_compressed)
 
 ```
 
+## Warning
+
+Correct CHECK bug on Rstudio:
+
+```r
+pak::pak("r-lib/sessioninfo")
+```
