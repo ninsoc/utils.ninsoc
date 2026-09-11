@@ -4,13 +4,17 @@
 \alias{compress_data}
 \title{Compress Data.Frame Variable's Data Types}
 \usage{
-compress_data(x)
+compress_data(x, exclude = NULL)
 }
 \arguments{
 \item{x}{A \code{data.frame} object.}
+
+\item{exclude}{Vector containing variable's names exclusion list. Those
+variables will not be compressed.}
 }
 \value{
-Returns a compressed \code{data.frame}.
+Returns a compressed \code{data.frame}, identical to the sequential
+result (parallelism never changes the output).
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -18,7 +22,30 @@ Returns a compressed \code{data.frame}.
 Convert each \code{data.frame} column to the most memory saving data type.
 This function doesn't change date or datetime columns, but it can convert
 a string column into a numeric one.
+
+Columns that are already at their minimal type (\code{integer},
+\code{logical}, \code{complex}) are skipped. For large tables the per-column
+conversion runs in parallel via \code{purrr::in_parallel()} (\code{mirai}
+backend), which is typically 3-5x faster. Parallelism is automatic and can be
+tuned with the options below; it gracefully falls back to sequential
+execution when \code{mirai}/\code{carrier} are not installed.
 }
+\section{Options}{
+
+\describe{
+\item{\code{utils.ninsoc.parallel}}{Set to \code{FALSE} to force sequential
+execution. Default \code{TRUE}.}
+\item{\code{utils.ninsoc.workers}}{Number of parallel workers. Default: the
+number of physical cores.}
+\item{\code{utils.ninsoc.parallel_threshold}}{Minimum work
+(\code{nrow * n_columns_to_convert}) to trigger parallelism. Default
+\code{1e6}.}
+}
+For repeated calls, set up a persistent pool once with
+\code{mirai::daemons()} to avoid per-call worker startup; \code{compress_data}
+reuses an existing pool and only creates a temporary one when none is set.
+}
+
 \examples{
 srvdata = readRDS(system.file("extdata", "srvdata.rds", package = "utils.ninsoc"))
 dplyr::glimpse(srvdata)

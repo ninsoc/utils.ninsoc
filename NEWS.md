@@ -1,5 +1,15 @@
 # utils.ninsoc 0.0.0.9005
 
+* Argument validation is now standardized with `checkmate`.
+* `compress_data` is now much faster on large tables: it skips columns that are
+  already at their minimal type (`integer`/`logical`/`complex`) and runs the
+  per-column conversion in parallel via `purrr::in_parallel()` (`mirai` backend)
+  when the data is large enough. Parallelism is automatic, produces an identical
+  result, and falls back to sequential when `mirai`/`carrier` are unavailable.
+  Tunable with options `utils.ninsoc.parallel`, `utils.ninsoc.workers`, and
+  `utils.ninsoc.parallel_threshold`.
+* `compress_data` gains an `exclude` argument to preserve selected variables
+  without compression.
 * Rename function `rename_to_pnadc_original_case` to `pnadc_original_vars`.
 * Rename function `srvyr_pnadc_design_lowcase` to `pnadc_design_lowcase`.
 * Add `label_values` to package exports.

@@ -49,21 +49,11 @@ parse_sas_input_code = function(
     stop("Argument 'sas_input_file' is missing, with no default.")
   }
 
-  if (!assertthat::is.string(sas_input_file)) {
-    stop("Argument 'sas_input_file' must be a string.")
-  }
-
-  if (!file.exists(sas_input_file)) {
-    stop(paste0("File '", sas_input_file, "' does not exist."))
-  }
-
-  if (!(is.null(lrecl) || assertthat::is.number(lrecl))) {
-    stop("Argument 'lrecl' must be either NULL or a number.")
-  }
-
-  if (!(is.null(encoding) | assertthat::is.string(encoding))) {
-    stop("Argument 'encoding' must be a string.")
-  }
+  checkmate::assert_string(sas_input_file)
+  checkmate::assert_file_exists(sas_input_file)
+  checkmate::assert_number(beginline)
+  checkmate::assert_number(lrecl, null.ok = TRUE)
+  checkmate::assert_string(encoding, null.ok = TRUE)
 
   # Define the file encoding
 
@@ -419,13 +409,9 @@ parse_sas_input_code = function(
 #' @keywords internal
 #' @noRd
 uncomment_sas_code = function(SASinput, starting.comment, ending.comment) {
-  if (!assertthat::is.string(starting.comment)) {
-    stop("Argument 'starting.comment' must be a string.")
-  }
-
-  if (!assertthat::is.string(ending.comment)) {
-    stop("Argument 'ending.comment' must be a string.")
-  }
+  checkmate::assert_character(SASinput)
+  checkmate::assert_string(starting.comment)
+  checkmate::assert_string(ending.comment)
 
   # remove /* */
   for (i in 1:length(SASinput)) {
@@ -533,21 +519,10 @@ sas_input_dict = function(sas_input_file, file_ext = "txt", encoding = NULL) {
     stop("Argument 'sas_input_file' is missing, with no default.")
   }
 
-  if (!assertthat::is.string(sas_input_file)) {
-    stop("Argument 'sas_input_file' must be a string.")
-  }
-
-  if (!file.exists(sas_input_file)) {
-    stop(paste0("File '", sas_input_file, "' does not exist."))
-  }
-
-  if (!assertthat::is.string(file_ext)) {
-    stop("Argument 'file_ext' must be a string.")
-  }
-
-  if (!(is.null(encoding) | assertthat::is.string(encoding))) {
-    stop("Argument 'encoding' must be a string.")
-  }
+  checkmate::assert_string(sas_input_file)
+  checkmate::assert_file_exists(sas_input_file)
+  checkmate::assert_string(file_ext)
+  checkmate::assert_string(encoding, null.ok = TRUE)
 
   # Define the file encoding
 

@@ -42,28 +42,17 @@ label_values = function(x, format, na = "NA") {
     stop("Argument 'format' is missing, with no default.")
   }
 
-  if (!is.null(dim(x)[2])) {
-    stop("Argument 'x' needs to be a vector.")
-  }
+  checkmate::assert_vector(x)
+  checkmate::assert_null(dim(x), .var.name = "dim(x)")
 
-  if (!is.null(dim(x)[2])) {
-    stop("Argument 'format' needs to be a vector.")
-  }
+  checkmate::assert_vector(format)
+  checkmate::assert_null(dim(format), .var.name = "dim(format)")
+  checkmate::assert_vector(format, names = "unique")
 
-  if (is.null(names(format))) {
-    stop("Argument 'format' needs to be a named vector.")
-  }
-
-  if (!assertthat::is.string(na)) {
-    stop("Argument 'na' must be a character string.")
-  }
+  checkmate::assert_string(na)
 
   descr = c(format)
   valor = names(format)
-
-  if (anyDuplicated(valor)) {
-    stop("There are duplicated values in 'format'.")
-  }
 
   # Substitui os missings
   valor = sub(na, NA, valor)

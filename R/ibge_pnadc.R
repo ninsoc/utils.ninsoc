@@ -18,9 +18,7 @@
 #'
 #' @author Fabio M. Vaz
 pnadc_original_vars = function(x) {
-  if (!("data.frame" %in% class(x))) {
-    stop("Argument 'x' must be of a data.frame class or equivalent.")
-  }
+  checkmate::assert_data_frame(x)
 
   regex_pnadc_vars = stringr::regex(
     r"(\b(?:v|vd|vi|vdi|s|sd)\d+?[A-Z]?\d{0,2}\b)",
@@ -71,11 +69,7 @@ pnadc_original_vars = function(x) {
 #' @note
 #' Essa função foi adaptada da função 'pnadc_design' do pacote "PNADcIBGE".
 pnadc_design_lowcase = function(data_pnadc) {
-  if (!("tbl_df" %in% class(data_pnadc))) {
-    stop(
-      "The microdata object is not of the tibble class or sample design was already defined for microdata"
-    )
-  }
+  checkmate::assert_tibble(data_pnadc)
 
   if (
     all(
