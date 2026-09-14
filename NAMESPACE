@@ -12,8 +12,10 @@ export(pnadc_design_lowcase)
 export(pnadc_original_vars)
 export(pq_variables)
 export(sas_input_dict)
-importFrom(rlang,"!!")
-importFrom(rlang,":=")
-importFrom(rlang,.data)
-importFrom(rlang,as_name)
-importFrom(rlang,quo)
+importFrom(rlang,
+  "!!",
+  ":=",
+  .data,
+  as_name,
+  quo
+)

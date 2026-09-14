@@ -7,5 +7,7 @@
 ^\.positai$
 ^\.claude$
 ^\.git
+^AGENTS\.md$
+^tools$
 ^check$
 ^.*\.tar\.gz$

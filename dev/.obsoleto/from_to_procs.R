@@ -43,7 +43,6 @@ from_parquet_to_parquet = function(
   output_path = NULL,
   replace = TRUE,
   compress_arrow = TRUE,
-  chunk_size = NULL,
   int64 = TRUE
 ) {
   if (missing(file_list)) {
@@ -89,12 +88,6 @@ from_parquet_to_parquet = function(
 
     dados = arrow::read_parquet(file_path, as_data_frame = FALSE)
 
-    if (is.null(chunk_size)) {
-      chunk_size_choice = optimal_chunk_size(dados)
-    } else {
-      chunk_size_choice = chunk_size
-    }
-
     if (compress_arrow == TRUE) {
       dados_arrow = compress_arrow(dados, int64 = int64)
     } else {
@@ -107,11 +100,10 @@ from_parquet_to_parquet = function(
     arrow::write_parquet(
       x = dados_arrow,
       sink = file.path(output_path, out_file_name),
-      chunk_size = chunk_size_choice,
-      coerce_timestamps = "ms",
-      allow_truncated_timestamps = TRUE,
-      compression = "gzip",
-      compression_level = 9
+      version = "latest",
+      chunk_size = 500000L,
+      compression = "zstd",
+      compression_level = 7L
     )
 
     re[[file_name]] = out_file_name
@@ -158,7 +150,6 @@ from_fst_to_parquet = function(
   output_path = NULL,
   replace = TRUE,
   compress_arrow = TRUE,
-  chunk_size = NULL,
   int64 = TRUE
 ) {
   if (missing(file_list)) {
@@ -204,12 +195,6 @@ from_fst_to_parquet = function(
 
     dados = fst::read_fst(file_path)
 
-    if (is.null(chunk_size)) {
-      chunk_size_choice = optimal_chunk_size(dados)
-    } else {
-      chunk_size_choice = chunk_size
-    }
-
     if (compress_arrow == TRUE) {
       dados_arrow = compress_arrow(dados, int64 = int64)
     } else {
@@ -222,11 +207,9 @@ from_fst_to_parquet = function(
     arrow::write_parquet(
       x = dados_arrow,
       sink = file.path(output_path, out_file_name),
-      chunk_size = chunk_size_choice,
-      coerce_timestamps = "ms",
-      allow_truncated_timestamps = TRUE,
-      compression = "gzip",
-      compression_level = 9
+      chunk_size = 500000L,
+      compression = "zstd",
+      compression_level = 7L
     )
 
     re[[file_name]] = out_file_name
